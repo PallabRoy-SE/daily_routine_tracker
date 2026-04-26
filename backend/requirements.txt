@@ -1,0 +1,9 @@
+fastapi[standard]
+sqlalchemy[asyncio]
+asyncpg
+pydantic-settings
+alembic
+pytest
+pytest-asyncio
+httpx
+aiosqlite
