@@ -1,6 +1,6 @@
-from datetime import datetime
-from sqlalchemy import DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime, date
+from sqlalchemy import DateTime, Date, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from app.core.database import Base
 
@@ -13,6 +13,18 @@ class Task(Base):
     priority: Mapped[int] = mapped_column(default=1)  # 1: Low, 2: Medium, 3: High
     is_completed: Mapped[bool] = mapped_column(default=False)
     links: Mapped[list[dict] | None] = mapped_column(JSONB, default=list)
+
+    logs: Mapped[list["TaskLog"]] = relationship(back_populates="task", cascade="all, delete-orphan")
+
+class TaskLog(Base):
+    __tablename__ = "task_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"))
+    target_date: Mapped[date] = mapped_column(Date, index=True)
+    is_completed: Mapped[bool] = mapped_column(default=False)
+
+    task: Mapped["Task"] = relationship(back_populates="logs")
 
 class UserStats(Base):
     __tablename__ = "user_stats"

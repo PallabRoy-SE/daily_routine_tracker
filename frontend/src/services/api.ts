@@ -24,8 +24,23 @@ export const fetchTasks = async () => {
   return response.data;
 };
 
+export const createTask = async (payload: any) => {
+  const response = await api.post('/tasks/', payload);
+  return response.data;
+};
+
 export const completeTask = async (taskId: number) => {
   const response = await api.put(`/tasks/${taskId}/complete`);
+  return response.data;
+};
+
+export const editTask = async (taskId: number, payload: any) => {
+  const response = await api.put(`/tasks/${taskId}`, payload);
+  return response.data;
+};
+
+export const deleteTask = async (taskId: number) => {
+  const response = await api.delete(`/tasks/${taskId}`);
   return response.data;
 };
 
@@ -34,6 +49,11 @@ export const completeTask = async (taskId: number) => {
 // or a dedicated stats endpoint if created.
 export const fetchUserStats = async () => {
   const response = await api.get('/tasks/stats'); 
+  return response.data;
+};
+
+export const fetchDailyHistory = async (dateString: string) => {
+  const response = await api.get(`/tasks/history/daily?target_date=${dateString}`);
   return response.data;
 };
 
