@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDailyHistory } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, Archive } from 'lucide-react';
+import { CheckCircle2, XCircle, Archive, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface TaskHistory {
@@ -10,6 +10,7 @@ interface TaskHistory {
   title: string;
   is_completed_on_date: boolean;
   priority: number;
+  time_limit?: number | null;
 }
 
 const DailyArchive = () => {
@@ -85,6 +86,12 @@ const DailyArchive = () => {
                       <span className={`text-sm font-semibold tracking-tight ${task.is_completed_on_date ? 'text-gray-500' : 'text-gray-800'}`}>
                         {task.title}
                       </span>
+                      {task.time_limit && (
+                        <span className="text-[10px] text-gray-400 font-bold bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 flex items-center gap-0.5 ml-2">
+                          <Clock size={10} />
+                          {task.time_limit}m
+                        </span>
+                      )}
                     </div>
                     
                     {task.is_completed_on_date ? (

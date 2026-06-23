@@ -27,11 +27,11 @@ async def seed():
         # 2. Create base Tasks
         print("Seeding sample missions...")
         tasks = [
-            Task(title="Morning Workout", description="HIIT or Strength", priority=3),
-            Task(title="Deep Work Session", description="2 hours focused coding", priority=3),
-            Task(title="Read Technical Paper", description="Stay updated with ML/AI", priority=2),
+            Task(title="Morning Workout", description="HIIT or Strength", priority=3, time_limit=30),
+            Task(title="Deep Work Session", description="2 hours focused coding", priority=3, time_limit=120),
+            Task(title="Read Technical Paper", description="Stay updated with ML/AI", priority=2, time_limit=45),
             Task(title="Journaling", description="Reflect on daily wins", priority=1),
-            Task(title="Meditation", description="Mindful breathing", priority=1),
+            Task(title="Meditation", description="Mindful breathing", priority=1, time_limit=15),
         ]
         db.add_all(tasks)
         await db.flush()  # Ensure tasks have IDs

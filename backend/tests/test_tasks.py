@@ -47,3 +47,35 @@ async def test_streak_increment_next_day():
         response = await ac.put(f"/api/v1/tasks/{task.id}/complete")
         assert response.status_code == 200
         assert response.json()["user_stats"]["current_streak"] == 2
+
+@pytest.mark.asyncio
+async def test_task_time_limit():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        # 1. Create a task with a time limit
+        task_data = {
+            "title": "Timed Mission",
+            "priority": 2,
+            "time_limit": 45,
+            "links": []
+        }
+        response = await ac.post("/api/v1/tasks/", json=task_data)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["time_limit"] == 45
+
+        # 2. Update the time limit
+        task_id = data["id"]
+        update_data = {
+            "time_limit": 60
+        }
+        response = await ac.put(f"/api/v1/tasks/{task_id}", json=update_data)
+        assert response.status_code == 200
+        assert response.json()["time_limit"] == 60
+
+        # 3. Clear the time limit (make it optional/None)
+        update_data_clear = {
+            "time_limit": None
+        }
+        response = await ac.put(f"/api/v1/tasks/{task_id}", json=update_data_clear)
+        assert response.status_code == 200
+        assert response.json()["time_limit"] is None

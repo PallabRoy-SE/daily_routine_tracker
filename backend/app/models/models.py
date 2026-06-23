@@ -12,6 +12,7 @@ class Task(Base):
     description: Mapped[str | None]
     priority: Mapped[int] = mapped_column(default=1)  # 1: Low, 2: Medium, 3: High
     is_completed: Mapped[bool] = mapped_column(default=False)
+    time_limit: Mapped[int | None] = mapped_column(nullable=True)
     links: Mapped[list[dict] | None] = mapped_column(JSONB, default=list)
 
     logs: Mapped[list["TaskLog"]] = relationship(back_populates="task", cascade="all, delete-orphan")

@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTasks, completeTask, editTask, deleteTask, createTask } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Trash2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import TaskModal from './TaskModal';
+import TaskItem from './TaskItem';
+import { AnimatePresence } from 'framer-motion';
 
 interface TaskLink {
   url: string;
@@ -17,19 +18,9 @@ interface Task {
   description: string | null;
   priority: number;
   is_completed: boolean;
+  time_limit: number | null;
   links: TaskLink[];
 }
-
-const XpPop = ({ xp }: { xp: number }) => (
-  <motion.span
-    initial={{ opacity: 0, y: 0, scale: 0.5 }}
-    animate={{ opacity: 1, y: -40, scale: 1.2 }}
-    exit={{ opacity: 0 }}
-    className="absolute top-0 left-0 text-blue-600 font-black text-sm z-50 pointer-events-none"
-  >
-    +{xp} XP
-  </motion.span>
-);
 
 const TaskBoard = () => {
   const queryClient = useQueryClient();
@@ -128,103 +119,15 @@ const TaskBoard = () => {
               <AnimatePresence mode="popLayout">
                 {groupedTasks[priority].length > 0 ? (
                   groupedTasks[priority].map((task) => (
-                    <motion.div
-                      layout
+                    <TaskItem
                       key={task.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ 
-                        opacity: 1, 
-                        y: 0,
-                        scale: task.is_completed ? 0.98 : 1,
-                        backgroundColor: task.is_completed ? 'rgba(249, 250, 251, 1)' : 'rgba(255, 255, 255, 1)'
-                      }}
-                      whileTap={{ scale: 0.97 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className={`p-4 rounded-xl border transition-all duration-200 ${
-                        task.is_completed 
-                          ? 'border-gray-200 opacity-60' 
-                          : 'border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3 relative">
-                        <div className="relative">
-                          <button
-                            onClick={() => !task.is_completed && completeMutation.mutate(task)}
-                            disabled={task.is_completed || completeMutation.isPending}
-                            className={`mt-1 h-5 w-5 rounded-md border flex items-center justify-center transition-all ${
-                              task.is_completed 
-                                ? 'bg-blue-500 border-blue-500 text-white scale-110' 
-                                : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-                            }`}
-                          >
-                            <AnimatePresence>
-                              {task.is_completed && (
-                                <motion.svg 
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="h-3.5 w-3.5" 
-                                  fill="none" 
-                                  viewBox="0 0 24 24" 
-                                  stroke="currentColor"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                </motion.svg>
-                              )}
-                            </AnimatePresence>
-                          </button>
-                          
-                          <AnimatePresence>
-                            {activeXpPop?.id === task.id && (
-                              <XpPop xp={activeXpPop.xp} />
-                            )}
-                          </AnimatePresence>
-                        </div>
-
-                        <div className="flex-1">
-                          <div className="group flex items-start justify-between gap-2">
-                            <h3 className={`font-semibold text-gray-800 transition-all ${task.is_completed ? 'line-through text-gray-400' : ''}`}>
-                              {task.title}
-                            </h3>
-                            {!task.is_completed && (
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                <button 
-                                  onClick={() => handleOpenEdit(task)}
-                                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
-                                >
-                                  <Edit2 size={14} />
-                                </button>
-                                <button 
-                                  onClick={() => window.confirm('Delete this task?') && deleteMutation.mutate(task.id)}
-                                  className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          {task.description && (
-                            <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{task.description}</p>
-                          )}
-                          
-                          {task.links && task.links.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {task.links.map((link, idx) => (
-                                <a
-                                  key={idx}
-                                  href={link.url}
-                                  target={link.action === 'new_tab' ? '_blank' : undefined}
-                                  rel={link.action === 'new_tab' ? 'noopener noreferrer' : undefined}
-                                  download={link.action === 'download'}
-                                  className="text-[10px] font-bold px-2 py-0.5 bg-gray-100 text-gray-600 rounded uppercase tracking-tighter hover:bg-blue-100 hover:text-blue-600 transition-colors"
-                                >
-                                  {link.label}
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
+                      task={task}
+                      onComplete={(t) => completeMutation.mutate(t)}
+                      onEdit={handleOpenEdit}
+                      onDelete={(id) => deleteMutation.mutate(id)}
+                      completePending={completeMutation.isPending}
+                      activeXpPop={activeXpPop}
+                    />
                   ))
                 ) : (
                   <div className="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl text-gray-300 text-sm italic">

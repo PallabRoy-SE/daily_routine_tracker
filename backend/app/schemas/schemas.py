@@ -12,6 +12,7 @@ class TaskBase(BaseModel):
     description: str | None = None
     priority: int = 1
     is_completed: bool = False
+    time_limit: int | None = None
     links: list[TaskLink] | None = []
 
 class TaskCreate(TaskBase):
@@ -22,6 +23,7 @@ class TaskUpdate(BaseModel):
     description: str | None = None
     priority: int | None = None
     is_completed: bool | None = None
+    time_limit: int | None = None
     links: list[TaskLink] | None = None
 
 class TaskPublic(TaskBase):

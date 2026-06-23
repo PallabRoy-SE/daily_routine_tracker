@@ -219,7 +219,7 @@ async def complete_task(task_id: int, db: SessionDep):
     result = await db.execute(select(UserStats).where(UserStats.id == 1))
     stats = result.scalar_one_or_none()
     if not stats:
-        stats = UserStats(id=1)
+        stats = UserStats(id=1, xp=0, current_streak=0, max_streak=0)
         db.add(stats)
 
     # 4. Calculate XP (Priority * 10)

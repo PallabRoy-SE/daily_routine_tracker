@@ -20,6 +20,7 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState(1);
+  const [timeLimit, setTimeLimit] = useState<number | ''>('');
   const [links, setLinks] = useState<TaskLink[]>([]);
 
   useEffect(() => {
@@ -28,11 +29,13 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
         setTitle(initialData.title || '');
         setDescription(initialData.description || '');
         setPriority(initialData.priority || 1);
+        setTimeLimit(initialData.time_limit !== undefined && initialData.time_limit !== null ? initialData.time_limit : '');
         setLinks(initialData.links || []);
       } else {
         setTitle('');
         setDescription('');
         setPriority(1);
+        setTimeLimit('');
         setLinks([]);
       }
       // Prevent scrolling when modal is open
@@ -65,6 +68,7 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
       title,
       description,
       priority: Number(priority),
+      time_limit: timeLimit === '' ? null : Number(timeLimit),
       links,
     });
   };
@@ -149,6 +153,19 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
                     </label>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Time Limit (Minutes - Optional)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value)))}
+                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition-all text-gray-900 bg-gray-50"
+                  placeholder="e.g., 30, 60. Leave empty for no limit"
+                />
+                <p className="mt-1 text-xs text-gray-400">If no limit is set, the mission can take as much time as needed.</p>
               </div>
 
               <div>
