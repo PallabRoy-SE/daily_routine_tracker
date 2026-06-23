@@ -6,7 +6,7 @@ import { CheckCircle2, XCircle, Archive, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface TaskHistory {
-  id: number;
+  id: string;
   title: string;
   is_completed_on_date: boolean;
   priority: number;

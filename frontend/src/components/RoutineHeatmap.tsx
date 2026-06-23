@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ActivityCalendar } from 'react-activity-calendar';
-import api from '../services/api';
+import { fetchHeatmapData } from '../services/api';
 import { Activity } from 'lucide-react';
 
 interface HeatmapData {
@@ -11,10 +11,7 @@ interface HeatmapData {
 const RoutineHeatmap = () => {
   const { data, isLoading, isError } = useQuery<HeatmapData[]>({
     queryKey: ['heatmapData'],
-    queryFn: async () => {
-      const response = await api.get('/tasks/history/heatmap');
-      return response.data;
-    },
+    queryFn: fetchHeatmapData,
   });
 
   if (isLoading) {

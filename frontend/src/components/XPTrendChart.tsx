@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import api from '../services/api';
+import { fetchXpTrend } from '../services/api';
 import { TrendingUp } from 'lucide-react';
 
 interface XpData {
@@ -11,10 +11,7 @@ interface XpData {
 const XPTrendChart = () => {
   const { data, isLoading, isError } = useQuery<XpData[]>({
     queryKey: ['xpTrend'],
-    queryFn: async () => {
-      const response = await api.get('/tasks/history/xp');
-      return response.data;
-    },
+    queryFn: fetchXpTrend,
   });
 
   if (isLoading) {

@@ -1,11 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import DashboardStats from './components/DashboardStats';
 import TaskBoard from './components/TaskBoard';
 import StatsDashboard from './views/StatsDashboard';
+import SettingsPanel from './components/SettingsPanel';
 import { ListTodo, BarChart2 } from 'lucide-react';
 
 function App() {
+  const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<'tasks' | 'stats'>('tasks');
+
+  // Midnight check: setup interval only if opened within 5 minutes of next calendar day
+  useEffect(() => {
+    const nextDay = new Date();
+    nextDay.setHours(24, 0, 0, 0);
+    const msUntilMidnight = nextDay.getTime() - Date.now();
+    const fiveMinutesInMs = 5 * 60 * 1000;
+
+    if (msUntilMidnight <= fiveMinutesInMs) {
+      console.log(`App loaded within 5 mins of midnight (${Math.round(msUntilMidnight / 1000)}s left). Activating midnight check interval.`);
+      let currentDay = new Date().getDate();
+      const interval = setInterval(() => {
+        const today = new Date().getDate();
+        if (today !== currentDay) {
+          console.log('Midnight day transition detected. Invalidating task queries.');
+          currentDay = today;
+          queryClient.invalidateQueries({ queryKey: ['tasks'] });
+          queryClient.invalidateQueries({ queryKey: ['upcomingTasks'] });
+        }
+      }, 15000); // Check every 15 seconds
+      return () => clearInterval(interval);
+    }
+  }, [queryClient]);
 
   return (
     <div className='min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-24'>
@@ -63,6 +89,7 @@ function App() {
             ) : (
               <StatsDashboard />
             )}
+            <SettingsPanel />
           </div>
         </main>
       </div>

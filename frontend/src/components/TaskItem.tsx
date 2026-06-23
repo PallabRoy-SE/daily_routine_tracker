@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Trash2, Play, Pause, RotateCcw, Clock, AlertCircle } from 'lucide-react';
 
@@ -9,22 +9,23 @@ interface TaskLink {
 }
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   priority: number;
   is_completed: boolean;
   time_limit: number | null;
   links: TaskLink[];
+  scheduled_date: string;
 }
 
 interface TaskItemProps {
   task: Task;
   onComplete: (task: Task) => void;
   onEdit: (task: Task) => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: string) => void;
   completePending: boolean;
-  activeXpPop: { id: number; xp: number } | null;
+  activeXpPop: { id: string; xp: number } | null;
 }
 
 const XpPop = ({ xp }: { xp: number }) => (
@@ -38,14 +39,14 @@ const XpPop = ({ xp }: { xp: number }) => (
   </motion.span>
 );
 
-const TaskItem = ({
+const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
   task,
   onComplete,
   onEdit,
   onDelete,
   completePending,
   activeXpPop,
-}: TaskItemProps) => {
+}, ref) => {
   const [isActive, setIsActive] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState<number | null>(
     task.time_limit ? task.time_limit * 60 : null
@@ -120,6 +121,7 @@ const TaskItem = ({
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{
@@ -187,11 +189,18 @@ const TaskItem = ({
         {/* Task Body */}
         <div className="flex-1 min-w-0">
           <div className="group flex items-start justify-between gap-2">
-            <h3 className={`font-bold text-gray-800 transition-all ${
-              task.is_completed ? 'line-through text-gray-400' : ''
-            }`}>
-              {task.title}
-            </h3>
+            <div className="flex flex-col gap-1">
+              <h3 className={`font-bold text-gray-800 transition-all ${
+                task.is_completed ? 'line-through text-gray-400' : ''
+              }`}>
+                {task.title}
+              </h3>
+              {task.scheduled_date && task.scheduled_date > new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0] && (
+                <span className="inline-block bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-lg w-fit">
+                  📅 Scheduled: {task.scheduled_date}
+                </span>
+              )}
+            </div>
             
             {/* Actions (Edit / Delete) */}
             {!task.is_completed && (
@@ -312,6 +321,6 @@ const TaskItem = ({
       </div>
     </motion.div>
   );
-};
+});
 
 export default TaskItem;

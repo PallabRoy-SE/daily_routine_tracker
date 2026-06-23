@@ -22,7 +22,7 @@ describe('TaskBoard', () => {
   it('renders links with correct HTML attributes based on action type', async () => {
     const mockTasks = [
       {
-        id: 1,
+        id: '1',
         title: 'Task with Links',
         priority: 2,
         is_completed: false,

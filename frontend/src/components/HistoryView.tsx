@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import api from '../services/api';
+import { fetchTaskLogs } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, CheckCircle2, Circle } from 'lucide-react';
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   priority: number;
 }
 
 interface TaskLog {
-  id: number;
-  task_id: number;
+  id: string;
+  task_id: string;
   target_date: string;
   is_completed: boolean;
   task: Task;
@@ -24,10 +24,7 @@ const HistoryView = () => {
 
   const { data: logs, isLoading, isError } = useQuery<TaskLog[]>({
     queryKey: ['taskLogs', selectedDate],
-    queryFn: async () => {
-      const response = await api.get(`/tasks/logs?target_date=${selectedDate}`);
-      return response.data;
-    },
+    queryFn: () => fetchTaskLogs(selectedDate),
   });
 
   const priorityColors = {

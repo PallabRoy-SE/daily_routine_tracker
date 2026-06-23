@@ -3,6 +3,21 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Trash2 } from 'lucide-react';
 
+const getTodayStr = () => {
+  const d = new Date();
+  const offset = d.getTimezoneOffset();
+  const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+  return localDate.toISOString().split('T')[0];
+};
+
+const getTomorrowStr = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const offset = d.getTimezoneOffset();
+  const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+  return localDate.toISOString().split('T')[0];
+};
+
 interface TaskLink {
   url: string;
   label: string;
@@ -22,6 +37,7 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
   const [priority, setPriority] = useState(1);
   const [timeLimit, setTimeLimit] = useState<number | ''>('');
   const [links, setLinks] = useState<TaskLink[]>([]);
+  const [scheduledDate, setScheduledDate] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -31,12 +47,14 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
         setPriority(initialData.priority || 1);
         setTimeLimit(initialData.time_limit !== undefined && initialData.time_limit !== null ? initialData.time_limit : '');
         setLinks(initialData.links || []);
+        setScheduledDate(initialData.scheduled_date || getTodayStr());
       } else {
         setTitle('');
         setDescription('');
         setPriority(1);
         setTimeLimit('');
         setLinks([]);
+        setScheduledDate(getTodayStr());
       }
       // Prevent scrolling when modal is open
       document.body.style.overflow = 'hidden';
@@ -64,12 +82,18 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const finalDate = scheduledDate || getTodayStr();
+    if (finalDate < getTodayStr()) {
+      alert('Cannot schedule a mission for a past date.');
+      return;
+    }
     onSubmit({
       title,
       description,
       priority: Number(priority),
       time_limit: timeLimit === '' ? null : Number(timeLimit),
       links,
+      scheduled_date: finalDate,
     });
   };
 
@@ -153,6 +177,59 @@ const TaskModal = ({ isOpen, onClose, initialData, onSubmit }: TaskModalProps) =
                     </label>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Schedule Mission</label>
+                <div className="flex gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setScheduledDate(getTodayStr())}
+                    className={`flex-1 py-2.5 rounded-xl border-2 transition-all font-bold text-xs uppercase tracking-wider ${
+                      scheduledDate === getTodayStr()
+                        ? 'border-blue-500 bg-blue-50 text-blue-600'
+                        : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScheduledDate(getTomorrowStr())}
+                    className={`flex-1 py-2.5 rounded-xl border-2 transition-all font-bold text-xs uppercase tracking-wider ${
+                      scheduledDate === getTomorrowStr()
+                        ? 'border-blue-500 bg-blue-50 text-blue-600'
+                        : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    Tomorrow
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (scheduledDate === getTodayStr() || scheduledDate === getTomorrowStr()) {
+                        setScheduledDate('');
+                      }
+                    }}
+                    className={`flex-1 py-2.5 rounded-xl border-2 transition-all font-bold text-xs uppercase tracking-wider ${
+                      scheduledDate !== getTodayStr() && scheduledDate !== getTomorrowStr()
+                        ? 'border-blue-500 bg-blue-50 text-blue-600'
+                        : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    Pick Date
+                  </button>
+                </div>
+
+                {(scheduledDate !== getTodayStr() && scheduledDate !== getTomorrowStr() || !scheduledDate) && (
+                  <input
+                    type="date"
+                    value={scheduledDate}
+                    min={getTodayStr()}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition-all text-gray-900 bg-gray-50"
+                  />
+                )}
               </div>
 
               <div>
