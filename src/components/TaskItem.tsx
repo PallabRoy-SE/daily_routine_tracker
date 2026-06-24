@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Trash2, Play, Pause, RotateCcw, Clock, AlertCircle } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
+import { useTimerContext } from '../context/TimerContext';
 
 interface TaskLink {
   url: string;
@@ -47,57 +49,52 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
   completePending,
   activeXpPop,
 }, ref) => {
-  const [isActive, setIsActive] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(
-    task.time_limit ? task.time_limit * 60 : null
-  );
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { theme } = useTheme();
+  const { timers, startTimer, pauseTimer, resetTimer, initializeTimer } = useTimerContext();
+  const timer = timers[task.id];
 
-  // Sync remaining seconds if time_limit changes or task resets
+  // Initialize the timer state if time_limit exists
   useEffect(() => {
-    if (task.time_limit) {
-      setSecondsRemaining(task.time_limit * 60);
-    } else {
-      setSecondsRemaining(null);
+    if (task.time_limit !== null && task.time_limit !== undefined) {
+      initializeTimer(task.id, task.time_limit);
     }
-    setIsActive(false);
-  }, [task.time_limit, task.is_completed]);
+  }, [task.id, task.time_limit, initializeTimer]);
 
-  // Timer logic
+  // Pause the timer automatically if the task is completed
   useEffect(() => {
-    if (isActive && secondsRemaining !== null && secondsRemaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setSecondsRemaining((prev) => {
-          if (prev !== null && prev > 1) {
-            return prev - 1;
-          }
-          setIsActive(false);
-          return 0;
-        });
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+    if (task.is_completed && timer?.isRunning) {
+      pauseTimer(task.id);
     }
+  }, [task.is_completed, timer?.isRunning, task.id, pauseTimer]);
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isActive, secondsRemaining]);
+  const isActive = timer?.isRunning ?? false;
+
+  const getSecondsRemaining = () => {
+    if (!timer) {
+      return task.time_limit ? task.time_limit * 60 : null;
+    }
+    if (timer.isRunning && timer.startedAt !== null) {
+      const elapsed = Math.floor((Date.now() - timer.startedAt) / 1000);
+      return Math.max(0, timer.initialSecondsRemaining - elapsed);
+    }
+    return timer.secondsRemaining;
+  };
+
+  const secondsRemaining = getSecondsRemaining();
 
   const toggleTimer = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsActive(!isActive);
+    if (isActive) {
+      pauseTimer(task.id);
+    } else {
+      startTimer(task.id);
+    }
   };
 
-  const resetTimer = (e: React.MouseEvent) => {
+  const handleResetTimer = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsActive(false);
     if (task.time_limit) {
-      setSecondsRemaining(task.time_limit * 60);
+      resetTimer(task.id, task.time_limit);
     }
   };
 
@@ -119,6 +116,22 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
     ? (secondsRemaining / (task.time_limit * 60)) * 100
     : 100;
 
+  // Theme-aware Framer Motion colors
+  const isDark = theme === 'dark';
+  const motionBg = task.is_completed 
+    ? (isDark ? 'rgba(30, 41, 59, 0.4)' : 'rgba(249, 250, 251, 1)')
+    : isExpired 
+      ? (isDark ? 'rgba(220, 38, 38, 0.1)' : 'rgba(254, 242, 242, 1)')
+      : (isDark ? 'rgba(31, 41, 55, 1)' : 'rgba(255, 255, 255, 1)');
+
+  const motionBorder = task.is_completed 
+    ? (isDark ? 'rgba(55, 65, 81, 1)' : 'rgba(229, 231, 235, 1)')
+    : isExpired 
+      ? (isDark ? 'rgba(248, 113, 113, 0.4)' : 'rgba(252, 165, 165, 1)')
+      : isActive 
+        ? (isDark ? 'rgba(59, 130, 246, 0.8)' : 'rgba(147, 197, 253, 1)')
+        : (isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 1)');
+
   return (
     <motion.div
       ref={ref}
@@ -128,18 +141,8 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
         opacity: 1,
         y: 0,
         scale: task.is_completed ? 0.98 : 1,
-        backgroundColor: task.is_completed 
-          ? 'rgba(249, 250, 251, 1)' 
-          : isExpired 
-            ? 'rgba(254, 242, 242, 1)' // soft red background for expired tasks
-            : 'rgba(255, 255, 255, 1)',
-        borderColor: task.is_completed 
-          ? 'rgba(229, 231, 235, 1)' 
-          : isExpired 
-            ? 'rgba(252, 165, 165, 1)' 
-            : isActive 
-              ? 'rgba(147, 197, 253, 1)' 
-              : 'rgba(243, 244, 246, 1)'
+        backgroundColor: motionBg,
+        borderColor: motionBorder
       }}
       whileTap={{ scale: 0.97 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -159,8 +162,8 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
               task.is_completed
                 ? 'bg-blue-500 border-blue-500 text-white scale-110'
                 : isExpired
-                  ? 'border-red-400 hover:border-blue-500 hover:bg-blue-50'
-                  : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                  ? 'border-red-400 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30'
             }`}
           >
             <AnimatePresence>
@@ -190,13 +193,13 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
         <div className="flex-1 min-w-0">
           <div className="group flex items-start justify-between gap-2">
             <div className="flex flex-col gap-1">
-              <h3 className={`font-bold text-gray-800 transition-all ${
-                task.is_completed ? 'line-through text-gray-400' : ''
+              <h3 className={`font-bold text-gray-800 dark:text-gray-200 transition-all ${
+                task.is_completed ? 'line-through text-gray-400 dark:text-gray-600' : ''
               }`}>
                 {task.title}
               </h3>
               {task.scheduled_date && task.scheduled_date > new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0] && (
-                <span className="inline-block bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-lg w-fit">
+                <span className="inline-block bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-lg w-fit">
                   📅 Scheduled: {task.scheduled_date}
                 </span>
               )}
@@ -210,7 +213,7 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
                     e.stopPropagation();
                     onEdit(task);
                   }}
-                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded"
                 >
                   <Edit2 size={14} />
                 </button>
@@ -221,7 +224,7 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
                       onDelete(task.id);
                     }
                   }}
-                  className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -230,7 +233,7 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
           </div>
 
           {task.description && (
-            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{task.description}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{task.description}</p>
           )}
 
           {/* Links */}
@@ -243,7 +246,7 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
                   target={link.action === 'new_tab' ? '_blank' : undefined}
                   rel={link.action === 'new_tab' ? 'noopener noreferrer' : undefined}
                   download={link.action === 'download'}
-                  className="text-[10px] font-bold px-2 py-0.5 bg-gray-100 text-gray-600 rounded uppercase tracking-tighter hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                  className="text-[10px] font-bold px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded uppercase tracking-tighter hover:bg-blue-100 dark:hover:bg-blue-950 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   {link.label}
                 </a>
@@ -253,12 +256,12 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
 
           {/* Interactive Countdown Timer */}
           {task.time_limit !== null && secondsRemaining !== null && (
-            <div className="mt-4 pt-3 border-t border-gray-100/50 flex flex-col gap-2">
+            <div className="mt-4 pt-3 border-t border-gray-100/50 dark:border-gray-700/50 flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
                   <Clock size={14} className={isActive ? "text-blue-500 animate-pulse" : ""} />
                   {isExpired ? (
-                    <span className="text-red-500 flex items-center gap-1 font-bold">
+                    <span className="text-red-500 dark:text-red-400 flex items-center gap-1 font-bold">
                       <AlertCircle size={12} />
                       Time's Up!
                     </span>
@@ -277,18 +280,18 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
                       disabled={isExpired}
                       className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
                         isExpired 
-                          ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                          ? 'bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed'
                           : isActive
-                            ? 'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                            ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                            : 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40'
                       }`}
                       title={isActive ? "Pause Timer" : "Start Timer"}
                     >
                       {isActive ? <Pause size={12} /> : <Play size={12} />}
                     </button>
                     <button
-                      onClick={resetTimer}
-                      className="p-1.5 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                      onClick={handleResetTimer}
+                      className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center"
                       title="Reset Timer"
                     >
                       <RotateCcw size={12} />
@@ -299,7 +302,7 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
 
               {/* Progress bar */}
               {!task.is_completed && (
-                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
                   <motion.div
                     initial={{ width: '100%' }}
                     animate={{ 

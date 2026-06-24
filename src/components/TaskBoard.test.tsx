@@ -3,10 +3,12 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TaskBoard from './TaskBoard';
 import * as api from '../services/api';
+import { TimerProvider } from '../context/TimerContext';
 
 // Mock the API service
 vi.mock('../services/api', () => ({
   fetchTasks: vi.fn(),
+  fetchUpcomingTasks: vi.fn(),
   completeTask: vi.fn(),
 }));
 
@@ -15,7 +17,9 @@ const queryClient = new QueryClient({
 });
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  <QueryClientProvider client={queryClient}>
+    <TimerProvider>{children}</TimerProvider>
+  </QueryClientProvider>
 );
 
 describe('TaskBoard', () => {

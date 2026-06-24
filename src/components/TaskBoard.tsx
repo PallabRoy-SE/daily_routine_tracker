@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import TaskModal from './TaskModal';
 import TaskItem from './TaskItem';
 import { AnimatePresence } from 'framer-motion';
+import { useTimerContext } from '../context/TimerContext';
 
 interface TaskLink {
   url: string;
@@ -25,6 +26,7 @@ interface Task {
 
 const TaskBoard = () => {
   const queryClient = useQueryClient();
+  const { deleteTimer } = useTimerContext();
   const [activeTab, setActiveTab] = useState<'daily' | 'upcoming'>('daily');
   const [activeXpPop, setActiveXpPop] = useState<{ id: string; xp: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,7 +56,8 @@ const TaskBoard = () => {
 
   const deleteMutation = useMutation({
     mutationFn: deleteTask,
-    onSuccess: () => {
+    onSuccess: (_, taskId) => {
+      deleteTimer(taskId);
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingTasks'] });
     },
@@ -109,26 +112,26 @@ const TaskBoard = () => {
   const isLoading = isDailyLoading || isUpcomingLoading;
   const isError = isDailyError || isUpcomingError;
 
-  if (isLoading) return <div className="text-center py-10 text-gray-400 font-medium">Loading your routine...</div>;
-  if (isError) return <div className="text-center py-10 text-red-500">Failed to load tasks.</div>;
+  if (isLoading) return <div className="text-center py-10 text-gray-400 dark:text-gray-550 font-medium">Loading your routine...</div>;
+  if (isError) return <div className="text-center py-10 text-red-500 dark:text-red-400 font-medium">Failed to load tasks.</div>;
 
   const priorityColors = {
-    High: 'text-rose-500 bg-rose-50 border-rose-100',
-    Medium: 'text-amber-500 bg-amber-50 border-amber-100',
-    Low: 'text-emerald-500 bg-emerald-50 border-emerald-100',
+    High: 'text-rose-500 bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30',
+    Medium: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30',
+    Low: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30',
   };
 
   return (
     <div className="space-y-8">
       {/* Header Tabs Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 pb-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
         <div className="flex gap-6 w-full sm:w-auto">
           <button
             onClick={() => setActiveTab('daily')}
             className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 ${
               activeTab === 'daily'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+                ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
+                : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
             }`}
           >
             Daily Missions
@@ -137,8 +140,8 @@ const TaskBoard = () => {
             onClick={() => setActiveTab('upcoming')}
             className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 ${
               activeTab === 'upcoming'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+                ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
+                : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
             }`}
           >
             Upcoming Missions
@@ -147,7 +150,7 @@ const TaskBoard = () => {
 
         <button
           onClick={handleOpenCreate}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none transition-all active:scale-95"
         >
           <Plus size={20} />
           Add New Mission
@@ -179,7 +182,7 @@ const TaskBoard = () => {
                       />
                     ))
                   ) : (
-                    <div className="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl text-gray-300 text-sm italic">
+                    <div className="py-8 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl text-gray-300 dark:text-gray-600 text-sm italic">
                       No tasks found
                     </div>
                   )}
@@ -205,7 +208,7 @@ const TaskBoard = () => {
                 />
               ))
             ) : (
-              <div className="col-span-full py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl text-gray-400 font-medium italic">
+              <div className="col-span-full py-16 text-center border-2 border-dashed border-gray-100 dark:border-gray-850 rounded-3xl text-gray-400 dark:text-gray-500 font-medium italic">
                 No upcoming missions scheduled
               </div>
             )}

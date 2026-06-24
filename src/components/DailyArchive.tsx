@@ -24,15 +24,15 @@ const DailyArchive = () => {
   });
 
   return (
-    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative z-10">
+    <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm relative z-10">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
         <div className="flex items-center gap-3">
-          <div className="bg-gray-100 p-2 rounded-xl text-gray-600">
+          <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-xl text-gray-600 dark:text-gray-300">
             <Archive size={20} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800 tracking-tight">Mission Archives</h2>
-            <p className="text-sm text-gray-500 font-medium">Verify historical mission logs</p>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">Mission Archives</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Verify historical mission logs</p>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ const DailyArchive = () => {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="block w-full sm:w-auto bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 text-gray-900 font-bold focus:border-blue-500 outline-none transition-all cursor-pointer text-sm hover:bg-gray-100"
+            className="block w-full sm:w-auto bg-gray-50 dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-750 rounded-xl px-4 py-2 text-gray-900 dark:text-gray-100 font-bold focus:border-blue-500 dark:focus:border-blue-550 outline-none transition-all cursor-pointer text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
           />
         </div>
       </div>
@@ -54,7 +54,7 @@ const DailyArchive = () => {
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
-              className="py-12 text-center text-gray-400 italic text-sm"
+              className="py-12 text-center text-gray-400 dark:text-gray-550 italic text-sm"
             >
               Accessing encrypted archives...
             </motion.div>
@@ -63,7 +63,7 @@ const DailyArchive = () => {
               key="error"
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
-              className="py-12 text-center text-red-400 font-medium text-sm"
+              className="py-12 text-center text-red-400 dark:text-red-300 font-medium text-sm"
             >
               Failed to retrieve historical intelligence.
             </motion.div>
@@ -72,7 +72,7 @@ const DailyArchive = () => {
               key="content"
               initial={{ opacity: 0, y: 10 }} 
               animate={{ opacity: 1, y: 0 }}
-              className="divide-y divide-gray-50"
+              className="divide-y divide-gray-50 dark:divide-gray-700/50"
             >
               {history && history.length > 0 ? (
                 history.map((task) => (
@@ -83,11 +83,11 @@ const DailyArchive = () => {
                         task.priority === 2 ? 'bg-amber-400' :
                         'bg-emerald-400'
                       }`} />
-                      <span className={`text-sm font-semibold tracking-tight ${task.is_completed_on_date ? 'text-gray-500' : 'text-gray-800'}`}>
+                      <span className={`text-sm font-semibold tracking-tight ${task.is_completed_on_date ? 'text-gray-500 dark:text-gray-400 line-through opacity-70' : 'text-gray-800 dark:text-gray-200'}`}>
                         {task.title}
                       </span>
                       {task.time_limit && (
-                        <span className="text-[10px] text-gray-400 font-bold bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 flex items-center gap-0.5 ml-2">
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold bg-gray-50 dark:bg-gray-900 px-1.5 py-0.5 rounded border border-gray-100 dark:border-gray-700 flex items-center gap-0.5 ml-2">
                           <Clock size={10} />
                           {task.time_limit}m
                         </span>
@@ -95,12 +95,12 @@ const DailyArchive = () => {
                     </div>
                     
                     {task.is_completed_on_date ? (
-                      <div className="flex items-center gap-2 text-emerald-500 bg-emerald-50 px-3 py-1 rounded-lg">
+                      <div className="flex items-center gap-2 text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1 rounded-lg">
                         <span className="text-[10px] font-black uppercase tracking-widest">Success</span>
                         <CheckCircle2 size={16} />
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-gray-300 bg-gray-50 px-3 py-1 rounded-lg">
+                      <div className="flex items-center gap-2 text-gray-300 dark:text-gray-650 bg-gray-50 dark:bg-gray-900/50 px-3 py-1 rounded-lg">
                         <span className="text-[10px] font-black uppercase tracking-widest">Failed</span>
                         <XCircle size={16} />
                       </div>
@@ -108,7 +108,7 @@ const DailyArchive = () => {
                   </div>
                 ))
               ) : (
-                <div className="py-12 text-center text-gray-300 italic text-sm">
+                <div className="py-12 text-center text-gray-300 dark:text-gray-600 italic text-sm">
                   No mission records for this chronological point.
                 </div>
               )}

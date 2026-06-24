@@ -3,8 +3,11 @@ import { seedTestData } from '../seedDatabase';
 import { syncWithGDrive } from '../services/syncEngine';
 import Database from '@tauri-apps/plugin-sql';
 import { disconnectGoogleAccount } from '../services/authService';
+import { useTheme } from '../hooks/useTheme';
+import { Sun, Moon } from 'lucide-react';
 
 const SettingsPanel = () => {
+  const { theme, toggleTheme } = useTheme();
   const [seeding, setSeeding] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
@@ -105,28 +108,64 @@ const SettingsPanel = () => {
 
       {/* Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Google Drive Sync Panel */}
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+        {/* Appearance Mode Card */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between transition-all hover:shadow-md md:col-span-2">
           <div>
-            <h3 className="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
+              {theme === 'dark' ? <Moon size={22} className="text-blue-400" /> : <Sun size={22} className="text-amber-500" />}
+              Appearance Mode
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-2 leading-relaxed">
+              Personalize your tracker layout. Switch between Light Mode for daytime clarity and Dark Mode for comfortable nighttime productivity.
+            </p>
+          </div>
+          
+          <div className="mt-8 flex items-center justify-between">
+            <span className="text-sm font-bold text-gray-600 dark:text-gray-300">
+              Current: <span className="capitalize text-blue-600 dark:text-blue-400">{theme} Mode</span>
+            </span>
+            
+            <button
+              onClick={toggleTheme}
+              className="relative inline-flex h-8 w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 dark:bg-gray-700 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+              role="switch"
+              aria-checked={theme === 'dark'}
+            >
+              <span className="sr-only">Toggle Dark Mode</span>
+              <span
+                aria-hidden="true"
+                className={`${
+                  theme === 'dark' ? 'translate-x-8 bg-blue-500' : 'translate-x-0 bg-amber-500'
+                } pointer-events-none inline-block h-7 w-7 transform rounded-full shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center text-white`}
+              >
+                {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Google Drive Sync Panel */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+          <div>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
               <span className="text-2xl" role="img" aria-label="cloud sync">🔄</span>
               Cloud Synchronization
             </h3>
-            <p className="text-sm text-gray-500 font-medium mt-2 leading-relaxed">
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-2 leading-relaxed">
               Synchronize your tasks and routine history across devices using your personal Google Drive storage.
             </p>
           </div>
           
           <div className="mt-8 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Status:</span>
+              <span className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Status:</span>
               {isConnected ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                   Connected to Google
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-50 text-gray-500 border border-gray-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                   Not Connected
                 </span>
@@ -137,7 +176,7 @@ const SettingsPanel = () => {
               <button
                 onClick={handleSync}
                 disabled={syncing || seeding}
-                className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-widest py-4 px-6 rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-widest py-4 px-6 rounded-2xl shadow-lg shadow-blue-100 dark:shadow-none transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {syncing ? (
                   <>
@@ -167,13 +206,13 @@ const SettingsPanel = () => {
         </div>
 
         {/* Developer Sandbox Controls */}
-        <div className="bg-white p-8 rounded-3xl border border-rose-100 shadow-sm flex flex-col justify-between transition-all hover:shadow-md hover:border-rose-200">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-rose-100 dark:border-rose-950/30 shadow-sm flex flex-col justify-between transition-all hover:shadow-md hover:border-rose-200 dark:hover:border-rose-900/50">
           <div>
-            <h3 className="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
               <span className="text-2xl text-rose-500" role="img" aria-label="sandbox">🧪</span>
               Developer Sandbox
             </h3>
-            <p className="text-sm text-gray-500 font-medium mt-2 leading-relaxed">
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-2 leading-relaxed">
               Reset and populate your local SQLite database with 90 days of random routine logs to test components.
             </p>
           </div>
@@ -181,7 +220,7 @@ const SettingsPanel = () => {
             <button
               onClick={handleSeed}
               disabled={seeding || syncing}
-              className="w-full bg-gradient-to-r from-rose-500 to-red-600 text-white font-extrabold text-xs uppercase tracking-widest py-4 px-6 rounded-2xl shadow-lg shadow-rose-100 hover:shadow-xl hover:from-rose-600 hover:to-red-700 transition-all active:scale-95 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-rose-500 to-red-600 text-white font-extrabold text-xs uppercase tracking-widest py-4 px-6 rounded-2xl shadow-lg shadow-rose-100 dark:shadow-none hover:shadow-xl hover:from-rose-600 hover:to-red-700 transition-all active:scale-95 disabled:opacity-50"
             >
               {seeding ? 'Injecting...' : seedSuccess ? 'Success! Reloading...' : 'Inject Test Data'}
             </button>

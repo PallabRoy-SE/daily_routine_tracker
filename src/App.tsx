@@ -34,11 +34,11 @@ function App() {
   }, [queryClient]);
 
   return (
-    <div className='min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-24'>
+    <div className='min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200 py-12 px-4 sm:px-6 lg:px-24'>
       <div className='max-w-7xl mx-auto'>
         <header className='mb-12 text-center'>
-          <h1 className='text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl'>Daily Routine Tracker</h1>
-          <p className='mt-4 text-xl text-gray-500'>Complete your tasks, earn XP, and maintain your streak!</p>
+          <h1 className='text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight sm:text-5xl'>Daily Routine Tracker</h1>
+          <p className='mt-4 text-xl text-gray-500 dark:text-gray-400'>Complete your tasks, earn XP, and maintain your streak!</p>
         </header>
 
         <main>
@@ -46,11 +46,11 @@ function App() {
 
           {/* Pill-shaped Segmented Control */}
           <div className='flex justify-center mt-12 mb-12'>
-            <div className='bg-gray-200/50 p-1.5 rounded-2xl flex gap-1 items-center border border-gray-100 shadow-inner'>
+            <div className='bg-gray-200/50 dark:bg-gray-800/50 p-1.5 rounded-2xl flex gap-1 items-center border border-gray-100 dark:border-gray-800 shadow-inner'>
               <button
                 onClick={() => setActiveView('tasks')}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  activeView === 'tasks' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  activeView === 'tasks' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
                 <ListTodo size={18} />
@@ -59,7 +59,7 @@ function App() {
               <button
                 onClick={() => setActiveView('stats')}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  activeView === 'stats' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  activeView === 'stats' ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
                 <BarChart2 size={18} />
@@ -71,7 +71,7 @@ function App() {
           <div className='mt-8'>
             {activeView === 'tasks' ? (
               <div>
-                <h2 className='text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2'>
+                <h2 className='text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2'>
                   <span className='bg-blue-600 text-white p-1.5 rounded-lg'>
                     <svg className='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                       <path
