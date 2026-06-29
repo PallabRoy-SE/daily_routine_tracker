@@ -1,0 +1,11 @@
+appId: "com.routine.tracker"
+productName: "Daily Routine Tracker"
+directories:
+  output: "release"
+mac:
+  target:
+    - dmg
+  minimumSystemVersion: "10.13"
+  icon: "electron/icons/icon.icns"  
+win:
+  icon: "electron/icons/icon.ico"   

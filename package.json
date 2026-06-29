@@ -5,12 +5,14 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "clean": "node -e \"const fs = require('fs'); ['dist', 'dist-electron', 'release'].forEach(dir => fs.rmSync(dir, { recursive: true, force: true }));\"",
+    "build": "npm run clean && tsc -p tsconfig.electron.json && vite build && electron-builder",
     "preview": "vite preview",
     "lint": "eslint .",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "electron:start": "electron .",
-    "electron:dev": "tsc -p tsconfig.electron.json && concurrently \"vite\" \"electron .\""
+    "electron:dev": "tsc -p tsconfig.electron.json && concurrently \"vite\" \"electron .\"",
+    "build:icons": "electron-icon-builder --input=./icon.png --output=./build --flatten"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",
@@ -37,6 +39,7 @@
     "concurrently": "^8.2.2",
     "electron": "^25.8.4",
     "electron-builder": "^24.6.4",
+    "electron-icon-builder": "^2.0.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
