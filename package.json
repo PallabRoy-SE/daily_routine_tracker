@@ -2,15 +2,15 @@
   "name": "mac-routine-tracker",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
-  "main": "main.js",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "electron:start": "electron .",
-    "electron:dev": "vite build && electron ."
+    "electron:dev": "tsc -p tsconfig.electron.json && concurrently \"vite\" \"electron .\""
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",
@@ -25,14 +25,17 @@
     "recharts": "^3.8.1"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.7.2",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^14.0.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^16.18.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "autoprefixer": "^10.4.19",
-    "electron": "^26.0.0",
+    "concurrently": "^8.2.2",
+    "electron": "^25.8.4",
     "electron-builder": "^24.6.4",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
