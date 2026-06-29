@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 export interface TimerState {
   secondsRemaining: number;
@@ -64,13 +64,13 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
         let changed = false;
         const next = { ...prev };
         const now = Date.now();
-        
+
         for (const taskId in next) {
           const timer = next[taskId];
           if (timer.isRunning && timer.startedAt !== null) {
             const elapsed = Math.floor((now - timer.startedAt) / 1000);
             const remaining = Math.max(0, timer.initialSecondsRemaining - elapsed);
-            
+
             if (remaining !== timer.secondsRemaining) {
               next[taskId] = {
                 ...timer,
