@@ -14,6 +14,30 @@
     "electron:dev": "tsc -p tsconfig.electron.json && concurrently \"vite\" \"electron .\"",
     "build:icons": "electron-icon-builder --input=./icon.png --output=./build --flatten"
   },
+  "build": {
+    "appId": "com.routine.tracker",
+    "productName": "Daily Routine Tracker",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "electron/icons/icon.icns",
+      "minimumSystemVersion": "10.13"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "electron/icons/icon.ico"
+    }
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",
     "axios": "^1.6.0",
