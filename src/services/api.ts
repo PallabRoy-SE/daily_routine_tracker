@@ -265,7 +265,20 @@ export const fetchDailyHistory = async (dateString: string): Promise<any[]> => {
     `SELECT t.id, t.title, t.priority, t.time_limit, t.links, tl.is_completed as is_completed_on_date
      FROM tasks t
      LEFT OUTER JOIN task_logs tl ON tl.task_id = t.id AND tl.target_date = $1 AND tl.is_deleted = 0
-     WHERE t.is_deleted = 0`,
+     WHERE t.is_deleted = 0
+       AND (
+         t.scheduled_date = $1
+         OR (
+           t.scheduled_date < $1
+           AND NOT EXISTS (
+             SELECT 1 FROM task_logs tl2
+             WHERE tl2.task_id = t.id
+               AND tl2.target_date < $1
+               AND tl2.is_completed = 1
+               AND tl2.is_deleted = 0
+           )
+         )
+       )`,
     [dateString]
   );
   return rows.map((row) => ({

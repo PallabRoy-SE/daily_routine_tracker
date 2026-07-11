@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTasks, completeTask, editTask, deleteTask, createTask, fetchUpcomingTasks } from '../services/api';
 import { Plus } from 'lucide-react';
@@ -32,6 +32,18 @@ const TaskBoard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
+  // Listen to Floating Action Button event
+  useEffect(() => {
+    const handleOpenCreateEvent = () => {
+      setSelectedTask(null);
+      setIsModalOpen(true);
+    };
+    window.addEventListener('open-create-task', handleOpenCreateEvent);
+    return () => {
+      window.removeEventListener('open-create-task', handleOpenCreateEvent);
+    };
+  }, []);
+
   const { data: tasks, isLoading: isDailyLoading, isError: isDailyError } = useQuery<Task[]>({
     queryKey: ['tasks'],
     queryFn: fetchTasks,
@@ -51,6 +63,7 @@ const TaskBoard = () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingTasks'] });
       queryClient.invalidateQueries({ queryKey: ['userStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyHistory'] });
     },
   });
 
@@ -60,6 +73,7 @@ const TaskBoard = () => {
       deleteTimer(taskId);
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingTasks'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyHistory'] });
     },
   });
 
@@ -75,6 +89,7 @@ const TaskBoard = () => {
       setSelectedTask(null);
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingTasks'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyHistory'] });
     },
   });
 
@@ -112,7 +127,7 @@ const TaskBoard = () => {
   const isLoading = isDailyLoading || isUpcomingLoading;
   const isError = isDailyError || isUpcomingError;
 
-  if (isLoading) return <div className="text-center py-10 text-gray-400 dark:text-gray-550 font-medium">Loading your routine...</div>;
+  if (isLoading) return <div className="text-center py-10 text-gray-400 dark:text-gray-555 font-medium">Loading your routine...</div>;
   if (isError) return <div className="text-center py-10 text-red-500 dark:text-red-400 font-medium">Failed to load tasks.</div>;
 
   const priorityColors = {
@@ -124,24 +139,24 @@ const TaskBoard = () => {
   return (
     <div className="space-y-8">
       {/* Header Tabs Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200/50 dark:border-[#2D2D2D]/60 pb-4">
         <div className="flex gap-6 w-full sm:w-auto">
           <button
             onClick={() => setActiveTab('daily')}
-            className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 ${
+            className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 cursor-pointer ${
               activeTab === 'daily'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+                ? 'border-blue-600 text-blue-600 dark:text-[#00E5FF] dark:border-[#00E5FF]'
+                : 'border-transparent text-gray-400 hover:text-gray-650 dark:text-gray-550 dark:hover:text-gray-350'
             }`}
           >
             Daily Missions
           </button>
           <button
             onClick={() => setActiveTab('upcoming')}
-            className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 ${
+            className={`text-lg font-bold pb-2 border-b-4 transition-all duration-200 cursor-pointer ${
               activeTab === 'upcoming'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+                ? 'border-blue-600 text-blue-600 dark:text-[#00E5FF] dark:border-[#00E5FF]'
+                : 'border-transparent text-gray-400 hover:text-gray-650 dark:text-gray-550 dark:hover:text-gray-350'
             }`}
           >
             Upcoming Missions
@@ -150,9 +165,9 @@ const TaskBoard = () => {
 
         <button
           onClick={handleOpenCreate}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-2xl font-extrabold text-xs uppercase tracking-wider hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-200/30 dark:shadow-none transition-all active:scale-95 cursor-pointer border-none"
         >
-          <Plus size={20} />
+          <Plus size={16} />
           Add New Mission
         </button>
       </div>
@@ -208,7 +223,7 @@ const TaskBoard = () => {
                 />
               ))
             ) : (
-              <div className="col-span-full py-16 text-center border-2 border-dashed border-gray-100 dark:border-gray-850 rounded-3xl text-gray-400 dark:text-gray-500 font-medium italic">
+              <div className="col-span-full py-16 text-center border-2 border-dashed border-gray-100 dark:border-gray-850 rounded-3xl text-gray-450 dark:text-gray-500 font-medium italic">
                 No upcoming missions scheduled
               </div>
             )}

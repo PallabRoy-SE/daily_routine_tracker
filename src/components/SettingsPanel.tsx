@@ -108,10 +108,10 @@ const SettingsPanel = () => {
       {/* Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Appearance Mode Card */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between transition-all hover:shadow-md md:col-span-2">
+        <div className="bg-[#F8F9FA] dark:bg-[#1E1E1E] p-8 rounded-3xl border border-gray-150 dark:border-[#2D2D2D]/60 shadow-sm flex flex-col justify-between transition-all hover:shadow-md md:col-span-2">
           <div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
-              {theme === 'dark' ? <Moon size={22} className="text-blue-400" /> : <Sun size={22} className="text-amber-500" />}
+            <h3 className="text-xl font-bold text-gray-850 dark:text-gray-200 tracking-tight flex items-center gap-2">
+              {theme === 'dark' ? <Moon size={22} className="text-blue-450" /> : <Sun size={22} className="text-amber-500" />}
               Appearance Mode
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-2 leading-relaxed">
@@ -120,8 +120,8 @@ const SettingsPanel = () => {
           </div>
           
           <div className="mt-8 flex items-center justify-between">
-            <span className="text-sm font-bold text-gray-600 dark:text-gray-300">
-              Current: <span className="capitalize text-blue-600 dark:text-blue-400">{theme} Mode</span>
+            <span className="text-sm font-bold text-gray-655 dark:text-gray-300">
+              Current: <span className="capitalize text-blue-600 dark:text-blue-450">{theme} Mode</span>
             </span>
             
             <button
@@ -144,9 +144,9 @@ const SettingsPanel = () => {
         </div>
 
         {/* Google Drive Sync Panel */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+        <div className="bg-[#F8F9FA] dark:bg-[#1E1E1E] p-8 rounded-3xl border border-gray-155 dark:border-[#2D2D2D]/60 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
           <div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-850 dark:text-gray-200 tracking-tight flex items-center gap-2">
               <span className="text-2xl" role="img" aria-label="cloud sync">🔄</span>
               Cloud Synchronization
             </h3>
@@ -159,7 +159,7 @@ const SettingsPanel = () => {
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Status:</span>
               {isConnected ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 dark:bg-green-955/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                   Connected to Google
                 </span>
@@ -205,9 +205,9 @@ const SettingsPanel = () => {
         </div>
 
         {/* Developer Sandbox Controls */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-rose-100 dark:border-rose-950/30 shadow-sm flex flex-col justify-between transition-all hover:shadow-md hover:border-rose-200 dark:hover:border-rose-900/50">
+        <div className="bg-[#F8F9FA] dark:bg-[#1E1E1E] p-8 rounded-3xl border border-rose-100 dark:border-rose-950/20 shadow-sm flex flex-col justify-between transition-all hover:shadow-md hover:border-rose-200 dark:hover:border-rose-900/50">
           <div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-850 dark:text-gray-200 tracking-tight flex items-center gap-2">
               <span className="text-2xl text-rose-500" role="img" aria-label="sandbox">🧪</span>
               Developer Sandbox
             </h3>
@@ -225,6 +225,7 @@ const SettingsPanel = () => {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
