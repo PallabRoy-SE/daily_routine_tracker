@@ -119,18 +119,19 @@ const TaskItem = forwardRef<HTMLDivElement, TaskItemProps>(({
   // Theme-aware Framer Motion colors
   const isDark = theme === 'dark';
   const motionBg = task.is_completed
-    ? (isDark ? 'rgba(30, 41, 59, 0.4)' : 'rgba(249, 250, 251, 1)')
+    ? (isDark ? 'rgba(30, 30, 30, 0.5)' : 'rgba(248, 249, 250, 0.6)')
     : isExpired
-      ? (isDark ? 'rgba(220, 38, 38, 0.1)' : 'rgba(254, 242, 242, 1)')
-      : (isDark ? 'rgba(31, 41, 55, 1)' : 'rgba(255, 255, 255, 1)');
+      ? (isDark ? 'rgba(220, 38, 38, 0.08)' : 'rgba(254, 242, 242, 1)')
+      : (isDark ? 'rgba(30, 30, 30, 1)' : 'rgba(248, 249, 250, 1)');
 
   const motionBorder = task.is_completed
-    ? (isDark ? 'rgba(55, 65, 81, 1)' : 'rgba(229, 231, 235, 1)')
+    ? (isDark ? 'rgba(45, 45, 45, 0.6)' : 'rgba(229, 231, 235, 0.4)')
     : isExpired
-      ? (isDark ? 'rgba(248, 113, 113, 0.4)' : 'rgba(252, 165, 165, 1)')
+      ? (isDark ? 'rgba(248, 113, 113, 0.4)' : 'rgba(252, 165, 165, 0.8)')
       : isActive
-        ? (isDark ? 'rgba(59, 130, 246, 0.8)' : 'rgba(147, 197, 253, 1)')
-        : (isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 1)');
+        ? (isDark ? 'rgba(0, 229, 255, 0.8)' : 'rgba(59, 130, 246, 0.8)')
+        : (isDark ? 'rgba(45, 45, 45, 0.8)' : 'rgba(229, 231, 235, 0.6)');
+
 
   return (
     <motion.div

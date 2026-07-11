@@ -1,7 +1,7 @@
 {
   "name": "daily_routine_tracker",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -15,8 +15,7 @@
     "tauri:android:dev": "tauri android dev",
     "tauri:android:build": "tauri android build",
     "tauri:android:uninstall": "tauri android uninstall",
-    "tauri:android:clear": "tauri android clear",
-    "dev:mobile": "concurrently \"npm run dev\" \"npm run tauri:android:dev\""
+    "tauri:android:clear": "tauri android clear"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",
