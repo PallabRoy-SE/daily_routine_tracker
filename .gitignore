@@ -25,3 +25,4 @@ release
 *.sw?
 .env
 /dist-electron
+/src-tauri
